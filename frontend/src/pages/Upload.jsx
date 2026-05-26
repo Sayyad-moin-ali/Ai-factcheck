@@ -112,18 +112,18 @@ const Upload = () => {
   };
 
   return (
-    <div className="pl-64 min-h-screen bg-dark-950 p-8 flex flex-col justify-center">
+    <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8 flex flex-col justify-center">
       <div className="max-w-3xl mx-auto w-full">
         {/* Header Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Analyze Claims</h1>
-          <p className="text-dark-300">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Analyze Claims</h1>
+          <p className="text-sm md:text-base text-dark-300">
             Upload any marketing flyer, technical sheet, or product spec PDF. Our system will extract claims, execute live web searches, and verify accuracy.
           </p>
         </div>
 
         {/* Outer upload card */}
-        <div className="glass-card p-8 border border-dark-800 relative overflow-hidden">
+        <div className="glass-card p-4 md:p-8 border border-dark-800 relative overflow-hidden">
           {error && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -146,9 +146,9 @@ const Upload = () => {
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
+                className={`border-2 border-dashed rounded-2xl p-6 md:p-12 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
                   dragActive 
-                    ? 'border-brand-indigo bg-brand-indigo/5 shadow-glow-indigo scale-99' 
+                    ? 'border-brand-indigo bg-brand-indigo/5 scale-99' 
                     : 'border-dark-700 hover:border-brand-indigo/50 hover:bg-dark-900/40'
                 }`}
                 onClick={() => document.getElementById('file-upload-input').click()}
@@ -223,14 +223,14 @@ const Upload = () => {
               {/* Progress bar container */}
               <div className="w-full max-w-md bg-dark-800 h-2.5 rounded-full overflow-hidden border border-dark-700/50">
                 <motion.div 
-                  className="h-full bg-gradient-to-r from-brand-indigo via-brand-purple to-brand-cyan"
+                  className="h-full bg-brand-indigo"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
               
-              <span className="text-xs text-brand-cyan font-bold mt-2 tracking-wider">
+              <span className="text-xs text-brand-indigo font-bold mt-2 tracking-wider">
                 {progress}%
               </span>
             </div>

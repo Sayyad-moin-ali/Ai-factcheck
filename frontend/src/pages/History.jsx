@@ -52,7 +52,7 @@ const History = () => {
 
   if (loading) {
     return (
-      <div className="pl-64 min-h-screen bg-dark-950 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader className="w-10 h-10 text-brand-indigo animate-spin" />
           <p className="text-dark-300 text-sm font-medium">Loading history logs...</p>
@@ -62,7 +62,7 @@ const History = () => {
   }
 
   return (
-    <div className="pl-64 min-h-screen bg-dark-950 p-8">
+    <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header Title */}

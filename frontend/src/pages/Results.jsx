@@ -121,7 +121,7 @@ const Results = () => {
 
   if (loading) {
     return (
-      <div className="pl-64 min-h-screen bg-dark-950 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader className="w-10 h-10 text-brand-indigo animate-spin" />
           <p className="text-dark-300 text-sm font-medium">Loading report dashboard...</p>
@@ -132,8 +132,8 @@ const Results = () => {
 
   if (error || !documentInfo) {
     return (
-      <div className="pl-64 min-h-screen bg-dark-950 p-8 flex items-center justify-center">
-        <div className="glass-card p-8 border-brand-rose/20 max-w-md text-center">
+      <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8 flex items-center justify-center">
+        <div className="glass-card p-6 md:p-8 border-brand-rose/20 max-w-md text-center">
           <ShieldAlert className="w-12 h-12 text-brand-rose mx-auto mb-4" />
           <h3 className="text-lg font-bold text-white mb-2">Error Loading Dashboard</h3>
           <p className="text-sm text-dark-300 mb-6">{error || 'Document information not found.'}</p>
@@ -160,18 +160,18 @@ const Results = () => {
   });
 
   return (
-    <div className="pl-64 min-h-screen bg-dark-950 p-8">
+    <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Top Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-dark-800 pb-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-dark-800 border border-dark-700 flex items-center justify-center text-brand-cyan shadow-inner">
-              <FileText className="w-6 h-6" />
+          <div className="flex items-start gap-3 md:gap-4 min-w-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-dark-800 border border-dark-700 flex items-center justify-center text-brand-indigo flex-shrink-0">
+              <FileText className="w-5 h-5 md:w-6 md:h-6" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-white">{documentInfo.fileName}</h1>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl md:text-2xl font-bold text-white break-words max-w-full">{documentInfo.fileName}</h1>
                 {documentInfo.status === 'processing' && (
                   <span className="flex items-center gap-1 text-[10px] bg-brand-indigo/15 text-brand-indigo px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-brand-indigo/30 animate-pulse-slow">
                     Processing
@@ -228,7 +228,7 @@ const Results = () => {
                 <span>{progressPercent}%</span>
               </div>
               <div className="w-full bg-dark-800 h-2 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-brand-indigo to-brand-cyan transition-all duration-500" style={{ width: `${progressPercent}%` }} />
+                <div className="h-full bg-brand-indigo transition-all duration-500" style={{ width: `${progressPercent}%` }} />
               </div>
               <p className="text-[10px] text-dark-300">
                 Verified {totalClaimsCount - unverifiedCount} of {totalClaimsCount} claims
@@ -262,7 +262,7 @@ const Results = () => {
           </div>
 
           {/* Stats KPI Overview */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="glass-card p-4 flex flex-col justify-between border-brand-emerald/10 hover:border-brand-emerald/30">
               <div className="flex items-center justify-between text-brand-emerald">
                 <span className="text-xs font-semibold uppercase tracking-wider">Verified</span>
@@ -311,15 +311,15 @@ const Results = () => {
 
         {/* Filters and Claims List */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-dark-800 pb-3">
-            <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-dark-800 pb-3">
+            <div className="flex gap-2 flex-wrap">
               {['all', 'Verified', 'Inaccurate', 'False'].map((t) => (
                 <button
                   key={t}
                   onClick={() => setFilter(t)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                     filter === t
-                      ? 'bg-brand-indigo/15 text-white border-brand-indigo/40 shadow-glow-indigo'
+                      ? 'bg-brand-indigo/15 text-white border-brand-indigo/40'
                       : 'text-dark-300 bg-transparent border-transparent hover:text-white hover:bg-dark-800'
                   }`}
                 >
