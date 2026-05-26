@@ -17,7 +17,26 @@ const upload = multer({
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://ai-factcheckk.vercel.app'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in the allowed list or is a Vercel preview/production domain
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,15 +70,18 @@ app.use((err, req, res, next) => {
 
 // Port settings
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`API endpoints:`);
-  console.log(` - Auth: POST /api/auth/signup, POST /api/auth/login, GET /api/auth/me`);
-  console.log(` - Upload: POST /api/upload`);
-  console.log(` - Documents: GET /api/documents, GET /api/documents/:id, DELETE /api/documents/:id`);
-  console.log(` - Verification: POST /api/verify, GET /api/results/:documentId`);
-  console.log(` - Reports: GET /api/claims/report/:documentId`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`API endpoints:`);
+    console.log(` - Auth: POST /api/auth/signup, POST /api/auth/login, GET /api/auth/me`);
+    console.log(` - Upload: POST /api/upload`);
+    console.log(` - Documents: GET /api/documents, GET /api/documents/:id, DELETE /api/documents/:id`);
+    console.log(` - Verification: POST /api/verify, GET /api/results/:documentId`);
+    console.log(` - Reports: GET /api/claims/report/:documentId`);
+  });
+}
 
-// Nodemon auto-restart trigger comment
+module.exports = app;
+
 
