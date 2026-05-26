@@ -60,3 +60,6 @@ app.listen(PORT, () => {
   console.log(` - Verification: POST /api/verify, GET /api/results/:documentId`);
   console.log(` - Reports: GET /api/claims/report/:documentId`);
 });
+
+// Nodemon auto-restart trigger comment
+

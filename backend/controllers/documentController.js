@@ -6,12 +6,12 @@ const searchService = require('../services/searchService');
 /**
  * Run fact-checking verification in the background
  */
-const runBackgroundVerification = async (documentId, pdfBuffer, keys) => {
+const runBackgroundVerification = async (documentId, pdfBuffer, fileName, keys) => {
   try {
     console.log(`Starting background verification for document: ${documentId}`);
     
     // 1. Extract claims and text using Gemini's native multimodal capabilities
-    const extraction = await aiService.extractClaimsAndTextFromPDF(pdfBuffer, keys.geminiKey);
+    const extraction = await aiService.extractClaimsAndTextFromPDF(pdfBuffer, keys.geminiKey, fileName);
     const extractedClaims = extraction.claims || [];
     const text = extraction.extractedText || '';
 
@@ -118,7 +118,7 @@ const uploadDocument = async (req, res) => {
     };
 
     // Run verification process in background
-    runBackgroundVerification(document._id, req.file.buffer, keys);
+    runBackgroundVerification(document._id, req.file.buffer, req.file.originalname, keys);
 
     // Respond immediately to the frontend
     res.status(201).json({
