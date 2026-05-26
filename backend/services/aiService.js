@@ -1,15 +1,12 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-/**
- * Helper to clean LLM response text that might contain markdown json blocks
- */
 function parseJSONResponse(text) {
   try {
     let cleanText = text.trim();
     if (cleanText.startsWith('```')) {
-      // Remove starting markdown block
+
       cleanText = cleanText.replace(/^```(json)?/, '');
-      // Remove ending markdown block
+
       cleanText = cleanText.replace(/```$/, '');
     }
     return JSON.parse(cleanText.trim());
@@ -19,12 +16,6 @@ function parseJSONResponse(text) {
   }
 }
 
-/**
- * Extracts factual claims from the PDF text.
- * @param {string} text - The extracted PDF text
- * @param {string} [customApiKey] - Optional API key from settings
- * @returns {Promise<Array>} List of claims: { claimText, category }
- */
 const extractClaims = async (text, customApiKey = null) => {
   const apiKey = customApiKey || process.env.GEMINI_API_KEY;
 
@@ -71,17 +62,10 @@ const extractClaims = async (text, customApiKey = null) => {
     }
   }
 
-  // Graceful Simulation Mode
   console.log('Using Simulated Claim Extraction');
   return getSimulatedClaims(text);
 };
 
-/**
- * Extracts claims and text directly from a PDF file buffer using Gemini multimodal capability.
- * @param {Buffer} pdfBuffer - The PDF file buffer
- * @param {string} [customApiKey] - Optional API key from settings
- * @returns {Promise<Object>} { claims: [{claimText, category}], extractedText }
- */
 const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileName = '') => {
   const apiKey = customApiKey || process.env.GEMINI_API_KEY;
 
@@ -122,11 +106,11 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
       const responseText = response.text();
       return parseJSONResponse(responseText);
     } catch (error) {
-      console.error('Gemini Multimodal PDF extraction failed, falling back to simulation:', error.message);
+      console.error('Gemini Multimodal PDF extraction failed:', error.message);
+      throw new Error(`Gemini API Error: ${error.message}. Please check your API key quota, rate limits, or billing.`);
     }
   }
 
-  // Fallback Simulation Mode
   console.log('Using Simulated Claim & Text Extraction');
   const bufferString = pdfBuffer.toString('utf8').toLowerCase();
   const lowerFileName = fileName.toLowerCase();
@@ -135,7 +119,7 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
   let mockText = '';
 
   if (lowerFileName.includes('news') || lowerFileName.includes('test') || lowerFileName.includes('fact_check') || bufferString.includes('india') || bufferString.includes('eiffel')) {
-    // Return all 10 claims from the test news document!
+
     claims = [
       { claimText: "India became the world's most populous country in 2023.", category: "statistic" },
       { claimText: "OpenAI was founded in 2015.", category: "date" },
@@ -156,7 +140,7 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
     ];
     mockText = 'Scientific Mars Assessment. The current human population of Mars is approximately 15 million in 2026. The NASA Perseverance rover landed on Mars in February 2021.';
   } else {
-    // Default generic fallback
+
     claims = getSimulatedClaims(bufferString);
     mockText = 'This is a simulated document transcript because the system is running in offline simulation mode.';
   }
@@ -164,13 +148,6 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
   return { claims, extractedText: mockText };
 };
 
-/**
- * Verifies a single claim using web search results.
- * @param {string} claimText - The claim to verify
- * @param {Array} searchResults - Search results from searchService
- * @param {string} [customApiKey] - Optional API key from settings
- * @returns {Promise<Object>} Verification result: { status, correctedFact, explanation, confidenceScore }
- */
 const verifyClaim = async (claimText, searchResults, customApiKey = null) => {
   const apiKey = customApiKey || process.env.GEMINI_API_KEY;
 
@@ -213,23 +190,19 @@ const verifyClaim = async (claimText, searchResults, customApiKey = null) => {
       const responseText = response.text();
       return parseJSONResponse(responseText);
     } catch (error) {
-      console.error(`Gemini verification failed for claim "${claimText}", falling back to simulated verification:`, error.message);
+      console.error(`Gemini verification failed for claim "${claimText}":`, error.message);
+      throw new Error(`Gemini API Error: ${error.message}`);
     }
   }
 
-  // Graceful Simulation Mode
   console.log(`Using Simulated Verification for claim: "${claimText}"`);
   return getSimulatedVerification(claimText, searchResults);
 };
 
-/**
- * Simulated Claim Extractor - parses text to extract mock claims based on keywords
- */
 function getSimulatedClaims(text) {
   const claims = [];
   const lowerText = text.toLowerCase();
 
-  // Look for Mars topic
   if (lowerText.includes('mars')) {
     claims.push({
       claimText: "The current human population of Mars is approximately 15 million in 2026.",
@@ -241,7 +214,6 @@ function getSimulatedClaims(text) {
     });
   }
 
-  // Look for India topic
   if (lowerText.includes('india')) {
     claims.push({
       claimText: "India's population is estimated to be around 1 billion.",
@@ -253,7 +225,6 @@ function getSimulatedClaims(text) {
     });
   }
 
-  // Look for Apple topic
   if (lowerText.includes('apple')) {
     claims.push({
       claimText: "Apple reported a record revenue of $500 billion for the fiscal year 2023.",
@@ -265,7 +236,6 @@ function getSimulatedClaims(text) {
     });
   }
 
-  // Generate generic claims if nothing matches
   if (claims.length === 0) {
     claims.push({
       claimText: "Global carbon emissions decreased by 40% in 2025 due to solar adoption.",
@@ -288,13 +258,9 @@ function getSimulatedClaims(text) {
   return claims;
 }
 
-/**
- * Simulated Claim Verification - compares claim with mock search results using string matching
- */
 function getSimulatedVerification(claimText, searchResults) {
   const lowerClaim = claimText.toLowerCase();
 
-  // 1. India became most populous country in 2023
   if (lowerClaim.includes('india') && (lowerClaim.includes('populous') || lowerClaim.includes('population')) && lowerClaim.includes('2023')) {
     return {
       status: "Verified",
@@ -304,7 +270,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 2. OpenAI founded in 2015
   if (lowerClaim.includes('openai') && lowerClaim.includes('2015')) {
     return {
       status: "Verified",
@@ -314,7 +279,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 3. India population exactly 1 billion
   if (lowerClaim.includes('india') && lowerClaim.includes('1 billion')) {
     return {
       status: "Inaccurate",
@@ -324,7 +288,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 4. Eiffel Tower located in Berlin
   if (lowerClaim.includes('eiffel') && lowerClaim.includes('berlin')) {
     return {
       status: "False",
@@ -334,7 +297,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 5. NASA landed humans in 1969
   if (lowerClaim.includes('nasa') && lowerClaim.includes('1969')) {
     return {
       status: "Verified",
@@ -344,7 +306,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 6. Python released in 2024
   if (lowerClaim.includes('python') && lowerClaim.includes('2024')) {
     return {
       status: "False",
@@ -354,7 +315,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 7. Argentina won FIFA 2022
   if (lowerClaim.includes('argentina') && lowerClaim.includes('2022')) {
     return {
       status: "Verified",
@@ -364,7 +324,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 8. Earth has two moons
   if (lowerClaim.includes('earth') && lowerClaim.includes('two moons')) {
     return {
       status: "False",
@@ -374,7 +333,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 9. First iPhone released in 2007
   if (lowerClaim.includes('iphone') && lowerClaim.includes('2007')) {
     return {
       status: "Verified",
@@ -384,7 +342,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // 10. Australia capital is Sydney
   if (lowerClaim.includes('australia') && lowerClaim.includes('sydney')) {
     return {
       status: "False",
@@ -394,7 +351,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // Mars Population
   if (lowerClaim.includes('mars') && lowerClaim.includes('population')) {
     return {
       status: "False",
@@ -404,7 +360,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // Mars Perseverance landing date
   if (lowerClaim.includes('perseverance') && lowerClaim.includes('2021')) {
     return {
       status: "Verified",
@@ -414,7 +369,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // Apple Revenue
   if (lowerClaim.includes('apple') && lowerClaim.includes('500 billion')) {
     return {
       status: "False",
@@ -433,7 +387,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // Generic matching rules
   if (lowerClaim.includes('emissions decreased') || lowerClaim.includes('quantum computer') && lowerClaim.includes('1995')) {
     if (lowerClaim.includes('1995')) {
       return {
@@ -460,7 +413,6 @@ function getSimulatedVerification(claimText, searchResults) {
     };
   }
 
-  // Fully default fallback
   return {
     status: "Verified",
     correctedFact: "",
@@ -469,12 +421,6 @@ function getSimulatedVerification(claimText, searchResults) {
   };
 }
 
-/**
- * Generates a summary of the document.
- * @param {string} text - The extracted text
- * @param {string} [customApiKey] - Optional API key
- * @returns {Promise<string>} Document summary
- */
 const generateSummary = async (text, customApiKey = null) => {
   const apiKey = customApiKey || process.env.GEMINI_API_KEY;
 
@@ -497,10 +443,10 @@ const generateSummary = async (text, customApiKey = null) => {
       return response.text().trim();
     } catch (error) {
       console.error('Gemini summary generation failed:', error.message);
+      throw new Error(`Gemini Summary Error: ${error.message}`);
     }
   }
 
-  // Fallback Simulation
   const lowerText = text.toLowerCase();
   if (lowerText.includes('mars')) {
     return 'This document discusses space exploration, scientific investigations of Mars surface conditions, and colonization feasibility. It details historical milestones including the Perseverance rover landing alongside futuristic projections for Mars settlements.';

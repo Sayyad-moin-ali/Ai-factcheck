@@ -42,7 +42,7 @@ const History = () => {
 
     try {
       await axios.delete(`${API_URL}/documents/${docId}`);
-      // Remove from state list
+
       setDocuments(prev => prev.filter(doc => doc._id !== docId));
     } catch (err) {
       console.error(err);
@@ -65,7 +65,7 @@ const History = () => {
     <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Header Title */}
+        {}
         <div className="border-b border-dark-800 pb-6">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <HistoryIcon className="w-8 h-8 text-brand-indigo" />
@@ -82,7 +82,7 @@ const History = () => {
           </div>
         )}
 
-        {/* History List */}
+        {}
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
             {documents.length === 0 ? (
@@ -112,14 +112,14 @@ const History = () => {
                     transition={{ duration: 0.2 }}
                     className="glass-card p-6 border border-dark-800/80 hover:border-dark-750 flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card-hover"
                   >
-                    {/* Left: Info */}
+                    {}
                     <div className="space-y-2 min-w-0 flex-1">
                       <div className="flex items-center gap-2.5 flex-wrap">
                         <h3 className="text-base font-bold text-white truncate max-w-md">
                           {doc.fileName}
                         </h3>
                         
-                        {/* Status tag */}
+                        {}
                         {isCompleted && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20 uppercase tracking-wider">
                             Verified
@@ -137,7 +137,7 @@ const History = () => {
                         )}
                       </div>
 
-                      {/* Metadata info */}
+                      {}
                       <div className="flex items-center gap-4 text-xs text-dark-300">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-brand-indigo" />
@@ -150,7 +150,7 @@ const History = () => {
                       </div>
                     </div>
 
-                    {/* Right: Actions */}
+                    {}
                     <div className="flex items-center gap-3">
                       <Link
                         to={`/results/${doc._id}`}

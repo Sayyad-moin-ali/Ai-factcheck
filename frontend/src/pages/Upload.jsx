@@ -29,7 +29,7 @@ const Upload = () => {
       setError('Only PDF documents are supported.');
       return false;
     }
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
       setError('File size must be less than 10MB.');
       return false;
     }
@@ -71,7 +71,6 @@ const Upload = () => {
       setProgress(10);
       setStatusText('Uploading PDF to verification server...');
 
-      // Load keys if configured in user local preferences
       const geminiKey = localStorage.getItem('custom_gemini_key') || '';
       const tavilyKey = localStorage.getItem('custom_tavily_key') || '';
 
@@ -83,7 +82,7 @@ const Upload = () => {
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          // Standard upload takes up first 70% of loading animation
+
           setProgress(Math.round(percentCompleted * 0.7));
           if (percentCompleted === 100) {
             setStatusText('Parsing text and initializing claim extraction...');
@@ -95,7 +94,6 @@ const Upload = () => {
       setProgress(100);
       setStatusText('Verification pipeline launched successfully!');
       
-      // Short delay for visual completion
       setTimeout(() => {
         navigate(`/results/${response.data.document.id}`);
       }, 1000);
@@ -114,7 +112,7 @@ const Upload = () => {
   return (
     <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8 flex flex-col justify-center">
       <div className="max-w-3xl mx-auto w-full">
-        {/* Header Title */}
+        {}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Analyze Claims</h1>
           <p className="text-sm md:text-base text-dark-300">
@@ -122,7 +120,7 @@ const Upload = () => {
           </p>
         </div>
 
-        {/* Outer upload card */}
+        {}
         <div className="glass-card p-4 md:p-8 border border-dark-800 relative overflow-hidden">
           {error && (
             <motion.div
@@ -140,7 +138,7 @@ const Upload = () => {
 
           {!uploading ? (
             <div className="space-y-6">
-              {/* Drag Area */}
+              {}
               <div
                 onDragEnter={handleDrag}
                 onDragOver={handleDrag}
@@ -176,7 +174,7 @@ const Upload = () => {
                 </span>
               </div>
 
-              {/* Show Selected File details */}
+              {}
               <AnimatePresence>
                 {file && (
                   <motion.div
@@ -207,7 +205,7 @@ const Upload = () => {
               </AnimatePresence>
             </div>
           ) : (
-            /* Upload Progress state */
+            
             <div className="py-12 flex flex-col items-center justify-center">
               <div className="w-16 h-16 rounded-full bg-brand-indigo/10 flex items-center justify-center text-brand-indigo animate-bounce mb-6">
                 <FileUp className="w-8 h-8" />
@@ -220,7 +218,7 @@ const Upload = () => {
                 {statusText}
               </p>
 
-              {/* Progress bar container */}
+              {}
               <div className="w-full max-w-md bg-dark-800 h-2.5 rounded-full overflow-hidden border border-dark-700/50">
                 <motion.div 
                   className="h-full bg-brand-indigo"

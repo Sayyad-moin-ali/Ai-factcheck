@@ -6,13 +6,12 @@ import Results from './pages/Results';
 import History from './pages/History';
 import { Menu, ShieldCheck } from 'lucide-react';
 
-// Layout wrapper that nests the Sidebar alongside dashboard pages
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-dark-950 text-dark-100 flex flex-col lg:flex-row">
-      {/* Mobile Sticky Header */}
+      {}
       <header className="lg:hidden flex items-center justify-between px-6 py-4 bg-dark-900 border-b border-dark-800 sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-brand-indigo flex items-center justify-center">
@@ -33,7 +32,7 @@ const Layout = () => {
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      {/* Main Page Content with Desktop Sidebar Offset */}
+      {}
       <main className="flex-1 w-full min-h-[calc(100vh-73px)] lg:min-h-screen lg:pl-64">
         <Outlet />
       </main>
@@ -45,14 +44,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Dashboard Area */}
+        {}
         <Route element={<Layout />}>
           <Route path="/upload" element={<Upload />} />
           <Route path="/results/:documentId" element={<Results />} />
           <Route path="/history" element={<History />} />
         </Route>
         
-        {/* Fallback route */}
+        {}
         <Route path="*" element={<Navigate to="/upload" replace />} />
       </Routes>
     </Router>

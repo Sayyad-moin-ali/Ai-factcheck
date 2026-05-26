@@ -38,7 +38,6 @@ const Results = () => {
       setClaims(res.data.claims);
       setError('');
       
-      // Stop polling if the document status is no longer 'processing'
       if (res.data.document.status !== 'processing') {
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
@@ -57,7 +56,6 @@ const Results = () => {
     }
   };
 
-  // Poll results if status is processing
   useEffect(() => {
     fetchResults(true);
 
@@ -85,7 +83,6 @@ const Results = () => {
         }
       });
       
-      // Refresh claims list
       await fetchResults(false);
     } catch (err) {
       console.error(err);
@@ -143,7 +140,6 @@ const Results = () => {
     );
   }
 
-  // Calculate status statistics
   const totalClaimsCount = claims.length;
   const verifiedCount = claims.filter(c => c.status === 'Verified').length;
   const inaccurateCount = claims.filter(c => c.status === 'Inaccurate').length;
@@ -153,7 +149,6 @@ const Results = () => {
     ? Math.round(((totalClaimsCount - unverifiedCount) / totalClaimsCount) * 100)
     : 0;
 
-  // Filtered claims to render
   const filteredClaims = claims.filter(claim => {
     if (filter === 'all') return true;
     return claim.status.toLowerCase() === filter.toLowerCase();
@@ -163,7 +158,7 @@ const Results = () => {
     <div className="min-h-[calc(100vh-73px)] lg:min-h-screen bg-dark-950 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Top Header Section */}
+        {}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-dark-800 pb-6">
           <div className="flex items-start gap-3 md:gap-4 min-w-0">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-dark-800 border border-dark-700 flex items-center justify-center text-brand-indigo flex-shrink-0">
@@ -207,7 +202,7 @@ const Results = () => {
           </div>
         </div>
 
-        {/* Polling Progress Banner */}
+        {}
         {documentInfo.status === 'processing' && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -237,9 +232,9 @@ const Results = () => {
           </motion.div>
         )}
 
-        {/* Summary & KPI Grid */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Summary Card */}
+          {}
           <div className="lg:col-span-2 glass-card p-6 flex flex-col justify-between">
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-dark-300 mb-3">AI Executive Summary</h3>
@@ -261,7 +256,7 @@ const Results = () => {
             )}
           </div>
 
-          {/* Stats KPI Overview */}
+          {}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="glass-card p-4 flex flex-col justify-between border-brand-emerald/10 hover:border-brand-emerald/30">
               <div className="flex items-center justify-between text-brand-emerald">
@@ -309,7 +304,7 @@ const Results = () => {
           </div>
         </div>
 
-        {/* Filters and Claims List */}
+        {}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-dark-800 pb-3">
             <div className="flex gap-2 flex-wrap">
@@ -337,7 +332,7 @@ const Results = () => {
             </span>
           </div>
 
-          {/* Claims Cards */}
+          {}
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {filteredClaims.length === 0 ? (
@@ -373,7 +368,7 @@ const Results = () => {
                       transition={{ duration: 0.3 }}
                       className={`glass-card p-6 border ${statusColorClass}`}
                     >
-                      {/* Title row */}
+                      {}
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div className="flex items-center gap-2.5">
                           {statusIcon}
@@ -412,13 +407,13 @@ const Results = () => {
                         </div>
                       </div>
 
-                      {/* Claim statement */}
+                      {}
                       <div className="mb-4">
                         <span className="text-[10px] font-bold text-dark-300 uppercase tracking-wider block mb-1">CLAIM STATEMENT</span>
                         <p className="text-sm text-white font-medium italic">"{claim.claimText}"</p>
                       </div>
 
-                      {/* Display correction if false or inaccurate */}
+                      {}
                       {(isFalse || isInaccurate) && (
                         <div className="mb-4 p-3 rounded-lg bg-dark-950 border border-dark-800 flex items-start gap-2.5">
                           <AlertTriangle className="w-4 h-4 text-brand-rose flex-shrink-0 mt-0.5" />
@@ -429,7 +424,7 @@ const Results = () => {
                         </div>
                       )}
 
-                      {/* Explanation and analysis */}
+                      {}
                       {!isUnverified && (
                         <div className="mb-4">
                           <span className="text-[10px] font-bold text-dark-300 uppercase tracking-wider block mb-1">AI ANALYSIS & VERIFICATION VERDICT</span>
@@ -437,7 +432,7 @@ const Results = () => {
                         </div>
                       )}
 
-                      {/* Sources links */}
+                      {}
                       {!isUnverified && claim.sources && claim.sources.length > 0 && (
                         <div className="pt-3 border-t border-dark-800/60">
                           <span className="text-[10px] font-bold text-dark-300 uppercase tracking-wider block mb-2">VERIFIED EVIDENCE SOURCES</span>
@@ -459,7 +454,7 @@ const Results = () => {
                         </div>
                       )}
 
-                      {/* Loading status (if claim is still unverified and document is processing) */}
+                      {}
                       {isUnverified && (
                         <div className="flex items-center gap-2 text-xs text-brand-indigo font-medium py-1 animate-pulse">
                           <Loader className="w-3.5 h-3.5 animate-spin" />
