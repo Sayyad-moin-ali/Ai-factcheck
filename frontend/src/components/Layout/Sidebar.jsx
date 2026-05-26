@@ -35,7 +35,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <ShieldCheck className="w-5.5 h-5.5 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight text-white">VeriFacts</h1>
+              <h1 className="text-base font-bold tracking-tight text-white">Ai-factcheck</h1>
               <span className="text-[9px] text-brand-indigo font-bold tracking-widest uppercase">AI Fact-Check</span>
             </div>
           </div>
@@ -58,14 +58,14 @@ const Sidebar = ({ isOpen, onClose }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium ${
+                className={`flex items-center gap-3.5 px-4 py-2.5 rounded-lg transition-all duration-200 group text-sm font-medium ${
                   isActive
-                    ? 'bg-brand-indigo/10 text-white border border-brand-indigo/20'
-                    : 'text-dark-300 hover:text-white hover:bg-dark-800/50 border border-transparent'
+                    ? 'bg-dark-800 text-white border border-dark-700'
+                    : 'text-dark-300 hover:text-white hover:bg-dark-900/40 border border-transparent'
                 }`}
               >
-                <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${
-                  isActive ? 'text-brand-indigo' : 'text-dark-300 group-hover:text-brand-indigo'
+                <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-102 ${
+                  isActive ? 'text-brand-indigo' : 'text-dark-300 group-hover:text-dark-100'
                 }`} />
                 {item.name}
               </Link>
@@ -75,7 +75,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Footer Branding Accent */}
         <div className="p-4 border-t border-dark-800 bg-dark-950/40 text-center text-[10px] text-dark-300">
-          VeriFacts AI Fact Checker
+          Ai-factcheck
         </div>
       </aside>
     </>

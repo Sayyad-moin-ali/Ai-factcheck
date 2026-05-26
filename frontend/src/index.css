@@ -3,13 +3,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dark-950: #070a13;
-  --color-dark-900: #0b0f19;
-  --color-dark-800: #161b26;
-  --color-dark-700: #1f293d;
-  --color-dark-600: #334155;
-  --color-dark-300: #cbd5e1;
-  --color-dark-100: #f8fafc;
+  --color-dark-950: #09090b;
+  --color-dark-900: #121214;
+  --color-dark-800: #1c1c1f;
+  --color-dark-700: #27272a;
+  --color-dark-600: #3f3f46;
+  --color-dark-300: #a1a1aa;
+  --color-dark-100: #f4f4f5;
   
   --color-brand-indigo: #6366f1;
   --color-brand-purple: #8b5cf6;
@@ -20,19 +20,6 @@
 
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Outfit', sans-serif;
-
-  --shadow-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.15);
-  --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.15);
-  --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.15);
-  --shadow-glow-rose: 0 0 20px rgba(244, 63, 94, 0.15);
-
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-float: float 6s ease-in-out infinite;
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
 }
 
 @layer base {
@@ -47,27 +34,27 @@
 
 @layer components {
   .glass-card {
-    @apply bg-dark-900/60 backdrop-blur-md border border-dark-800/80 rounded-2xl shadow-xl transition-all duration-300;
+    @apply bg-dark-900/40 backdrop-blur-lg border border-dark-800/80 rounded-xl transition-all duration-200;
   }
 
   .glass-card-hover {
-    @apply hover:bg-dark-900/85 hover:border-dark-700/80 hover:shadow-2xl;
+    @apply hover:bg-dark-900/60 hover:border-dark-700/80 hover:shadow-lg;
   }
 
   .glow-border-indigo {
-    @apply border border-brand-indigo/35 hover:border-brand-indigo/60;
+    @apply border border-brand-indigo/25 hover:border-brand-indigo/55;
   }
 
   .glow-border-cyan {
-    @apply border border-brand-cyan/35 hover:border-brand-cyan/60;
+    @apply border border-brand-cyan/25 hover:border-brand-cyan/55;
   }
 
   .btn-primary {
-    @apply px-5 py-2.5 bg-brand-indigo text-white font-medium rounded-xl transition-all duration-200 transform active:scale-95 disabled:opacity-55 disabled:cursor-not-allowed hover:bg-brand-indigo/90;
+    @apply px-4.5 py-2.5 bg-dark-100 text-dark-950 font-semibold rounded-lg transition-all duration-200 transform active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white;
   }
 
   .btn-secondary {
-    @apply px-5 py-2.5 bg-dark-800 text-dark-100 hover:bg-dark-700 font-medium rounded-xl border border-dark-700/80 hover:border-dark-600 transition-all duration-200 active:scale-95;
+    @apply px-4.5 py-2.5 bg-dark-900 text-dark-100 hover:bg-dark-800 font-semibold rounded-lg border border-dark-800 transition-all duration-200 active:scale-98;
   }
 }
 

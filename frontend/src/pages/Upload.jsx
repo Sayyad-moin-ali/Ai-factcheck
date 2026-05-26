@@ -146,10 +146,10 @@ const Upload = () => {
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-2xl p-6 md:p-12 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
+                className={`border-2 border-dashed rounded-xl p-6 md:p-12 text-center transition-all duration-200 flex flex-col items-center justify-center cursor-pointer ${
                   dragActive 
                     ? 'border-brand-indigo bg-brand-indigo/5 scale-99' 
-                    : 'border-dark-700 hover:border-brand-indigo/50 hover:bg-dark-900/40'
+                    : 'border-dark-800 hover:border-dark-700 hover:bg-dark-900/40'
                 }`}
                 onClick={() => document.getElementById('file-upload-input').click()}
               >
@@ -161,17 +161,17 @@ const Upload = () => {
                   onChange={handleChange}
                 />
                 
-                <div className="w-16 h-16 rounded-2xl bg-dark-800 border border-dark-750 flex items-center justify-center mb-4 text-brand-indigo shadow-inner group-hover:scale-105 transition-transform">
-                  <FileUp className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-lg bg-dark-900 border border-dark-800 flex items-center justify-center mb-4 text-brand-indigo transition-transform duration-200">
+                  <FileUp className="w-6 h-6" />
                 </div>
                 
-                <h3 className="text-lg font-semibold text-white mb-1">
+                <h3 className="text-base font-semibold text-white mb-1">
                   Drag and drop your PDF here
                 </h3>
-                <p className="text-sm text-dark-300 mb-2">
+                <p className="text-xs text-dark-300 mb-3">
                   or click to browse from files
                 </p>
-                <span className="text-xs text-dark-300/60 bg-dark-950/80 px-3 py-1 rounded-full border border-dark-800">
+                <span className="text-[10px] text-dark-300 bg-dark-950/80 px-2.5 py-1 rounded-full border border-dark-800">
                   Maximum file size: 10 MB
                 </span>
               </div>
@@ -183,10 +183,10 @@ const Upload = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="p-4 rounded-xl bg-dark-800 border border-dark-700/80 flex items-center justify-between"
+                    className="p-4 rounded-lg bg-dark-900 border border-dark-800 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-lg bg-brand-indigo/10 flex items-center justify-center text-brand-indigo flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-dark-800 border border-dark-700 flex items-center justify-center text-brand-indigo flex-shrink-0">
                         <File className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">

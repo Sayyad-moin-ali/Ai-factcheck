@@ -19,7 +19,7 @@ const Layout = () => {
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-display font-bold text-white text-base block leading-none">VeriFacts</span>
+            <span className="font-display font-bold text-white text-base block leading-none">Ai-factcheck</span>
             <span className="text-[9px] text-brand-indigo font-bold tracking-wider uppercase">AI Fact-Check</span>
           </div>
         </div>

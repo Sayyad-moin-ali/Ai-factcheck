@@ -355,11 +355,7 @@ const Results = () => {
                   const isFalse = claim.status === 'False';
                   const isUnverified = claim.status === 'Unverified';
 
-                  const statusColorClass = 
-                    isVerified ? 'text-brand-emerald border-brand-emerald/20 hover:border-brand-emerald/40 hover:shadow-glow-emerald bg-brand-emerald/3' :
-                    isInaccurate ? 'text-brand-amber border-brand-amber/20 hover:border-brand-amber/40 hover:shadow-glow-amber bg-brand-amber/3' :
-                    isFalse ? 'text-brand-rose border-brand-rose/20 hover:border-brand-rose/40 hover:shadow-glow-rose bg-brand-rose/3' :
-                    'text-brand-indigo border-dark-800/80 hover:border-brand-indigo/20 bg-dark-900/30';
+                  const statusColorClass = 'border-dark-800 hover:border-dark-700 bg-dark-900/40 text-dark-100';
 
                   const statusIcon = 
                     isVerified ? <ShieldCheck className="w-5 h-5 text-brand-emerald" /> :
@@ -424,7 +420,7 @@ const Results = () => {
 
                       {/* Display correction if false or inaccurate */}
                       {(isFalse || isInaccurate) && (
-                        <div className="mb-4 p-3.5 rounded-xl bg-brand-rose/5 border border-brand-rose/10 flex items-start gap-2.5">
+                        <div className="mb-4 p-3 rounded-lg bg-dark-950 border border-dark-800 flex items-start gap-2.5">
                           <AlertTriangle className="w-4 h-4 text-brand-rose flex-shrink-0 mt-0.5" />
                           <div className="min-w-0">
                             <span className="text-[10px] font-bold text-brand-rose uppercase tracking-wider block mb-0.5">CORRECTED FACT</span>

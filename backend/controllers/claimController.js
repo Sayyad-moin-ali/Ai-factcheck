@@ -120,7 +120,7 @@ const downloadReport = async (req, res) => {
     pdfDoc
       .fillColor(accentColor)
       .fontSize(22)
-      .text('VERIFACTS - AI FACT CHECK REPORT', { align: 'center', bold: true })
+      .text('AI-FACTCHECK REPORT', { align: 'center', bold: true })
       .moveDown(0.2);
 
     // Decorative line
