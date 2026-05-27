@@ -4,9 +4,7 @@ function parseJSONResponse(text) {
   try {
     let cleanText = text.trim();
     if (cleanText.startsWith('```')) {
-
       cleanText = cleanText.replace(/^```(json)?/, '');
-
       cleanText = cleanText.replace(/```$/, '');
     }
     return JSON.parse(cleanText.trim());
@@ -16,20 +14,53 @@ function parseJSONResponse(text) {
   }
 }
 
+async function callGeminiAPI(apiKey, promptOrParts, isJson = true) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  // Try 2.5-flash first to bypass 3.5-flash limits, then 1.5-flash, then flash-latest, then 1.0-pro (legacy text-only)
+  const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-pro'];
+  
+  let lastError;
+  for (const modelName of modelsToTry) {
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const config = { model: modelName };
+        // gemini-pro (1.0) doesn't support responseMimeType
+        if (isJson && !modelName.includes('gemini-pro')) {
+          config.generationConfig = { responseMimeType: 'application/json' };
+        }
+        const model = genAI.getGenerativeModel(config);
+        const result = await model.generateContent(promptOrParts);
+        return result;
+      } catch (error) {
+        lastError = error;
+        // Check if it's a rate limit error (429)
+        if (error.message && error.message.includes('429')) {
+          console.warn(`[Gemini API] Rate limit hit on ${modelName}, waiting 15s... (Retries left: ${retries - 1})`);
+          await new Promise(r => setTimeout(r, 15000));
+          retries--;
+          if (retries === 0) {
+            throw error; // Throw the 429 instead of trying other models
+          }
+          continue; // Retry same model
+        } else {
+          console.warn(`[Gemini API] Model ${modelName} failed with non-429 error:`, error.message);
+          break; // Break retry loop, try next model in the fallback list
+        }
+      }
+    }
+  }
+  throw lastError;
+}
+
 const extractClaims = async (text, customApiKey = null) => {
   const apiKey = customApiKey || process.env.GEMINI_API_KEY;
 
   if (apiKey && apiKey !== 'your_gemini_api_key' && apiKey.trim() !== '') {
     try {
       console.log('Sending text to Gemini API for claim extraction...');
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash',
-        generationConfig: { responseMimeType: 'application/json' }
-      });
-
       const prompt = `
-        You are an expert fact-checking AI. Analyze the following text and extract all factual claims that are suitable for verification (aim for between 5 to 15 claims). 
+        You are an expert fact-checking AI. Analyze the following text and extract all factual claims that are suitable for verification (aim for between 10 to 15 claims). 
         Focus on claims that represent:
         - Statistics and numeric data
         - Dates and historical events
@@ -53,7 +84,7 @@ const extractClaims = async (text, customApiKey = null) => {
         ---
       `;
 
-      const result = await model.generateContent(prompt);
+      const result = await callGeminiAPI(apiKey, prompt, true);
       const response = await result.response;
       const responseText = response.text();
       return parseJSONResponse(responseText);
@@ -72,12 +103,6 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
   if (apiKey && apiKey !== 'your_gemini_api_key' && apiKey.trim() !== '') {
     try {
       console.log('Sending PDF buffer to Gemini API for claims and text extraction...');
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash',
-        generationConfig: { responseMimeType: 'application/json' }
-      });
-
       const pdfPart = {
         inlineData: {
           data: pdfBuffer.toString('base64'),
@@ -88,7 +113,7 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
       const prompt = `
         You are an expert fact-checking AI. Analyze this PDF document and do two things:
         1. Extract all clear factual statements/claims that are suitable for verification. 
-           Aim for between 5 to 15 claims. Focus on claims representing statistics, dates, financial figures, 
+           Aim for between 10 to 15 claims. Focus on claims representing statistics, dates, financial figures, 
            technical specifications, or company statements.
         2. Extract the complete plain text content of the document as a clean, readable transcript.
 
@@ -101,7 +126,7 @@ const extractClaimsAndTextFromPDF = async (pdfBuffer, customApiKey = null, fileN
         }
       `;
 
-      const result = await model.generateContent([pdfPart, prompt]);
+      const result = await callGeminiAPI(apiKey, [pdfPart, prompt], true);
       const response = await result.response;
       const responseText = response.text();
       return parseJSONResponse(responseText);
@@ -154,12 +179,6 @@ const verifyClaim = async (claimText, searchResults, customApiKey = null) => {
   if (apiKey && apiKey !== 'your_gemini_api_key' && apiKey.trim() !== '') {
     try {
       console.log(`Sending claim to Gemini API for verification: "${claimText}"`);
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash',
-        generationConfig: { responseMimeType: 'application/json' }
-      });
-
       const prompt = `
         Analyze the following factual claim using the provided web search results. 
         Determine whether the claim is:
@@ -185,7 +204,7 @@ const verifyClaim = async (claimText, searchResults, customApiKey = null) => {
         ${JSON.stringify(searchResults, null, 2)}
       `;
 
-      const result = await model.generateContent(prompt);
+      const result = await callGeminiAPI(apiKey, prompt, true);
       const response = await result.response;
       const responseText = response.text();
       return parseJSONResponse(responseText);
@@ -197,6 +216,53 @@ const verifyClaim = async (claimText, searchResults, customApiKey = null) => {
 
   console.log(`Using Simulated Verification for claim: "${claimText}"`);
   return getSimulatedVerification(claimText, searchResults);
+};
+
+const verifyAllClaimsBatch = async (claimsWithSources, customApiKey = null) => {
+  const apiKey = customApiKey || process.env.GEMINI_API_KEY;
+
+  if (apiKey && apiKey !== 'your_gemini_api_key' && apiKey.trim() !== '') {
+    try {
+      console.log(`Sending ${claimsWithSources.length} claims to Gemini API for BATCH verification...`);
+      const prompt = `
+        You are an expert fact-checking AI. I am providing you with an array of factual claims, each accompanied by its own web search results.
+        Analyze EACH claim using its provided web search results.
+        Determine whether each claim is:
+        - "Verified": The claim is fully accurate and supported by the web search results.
+        - "Inaccurate": The claim contains minor errors, outdated numbers, or slightly misleading details.
+        - "False": The claim is completely incorrect, contradicted by the search results, or represents a fantasy/unfounded statement.
+
+        Provide a corrected factual statement if the claim is Inaccurate or False. 
+        Provide a brief explanation detailing why the status was chosen based on the search results.
+        Assign a confidence score (0-100) representing how certain you are of the verdict.
+
+        Return ONLY a JSON array containing objects in this exact format. You must return exactly one object for every input claim, in the same order.
+        [
+          {
+            "status": "Verified" | "Inaccurate" | "False",
+            "correctedFact": "Corrected claim statement if False or Inaccurate, empty string if Verified",
+            "explanation": "Brief explanation of findings",
+            "confidenceScore": 95
+          }
+        ]
+
+        Input Data (Claims and Search Results):
+        ${JSON.stringify(claimsWithSources, null, 2)}
+      `;
+
+      const result = await callGeminiAPI(apiKey, prompt, true);
+      const response = await result.response;
+      const responseText = response.text();
+      return parseJSONResponse(responseText);
+    } catch (error) {
+      console.error(`Gemini BATCH verification failed:`, error.message);
+      throw new Error(`Gemini BATCH API Error: ${error.message}`);
+    }
+  }
+
+  console.log(`Using Simulated BATCH Verification...`);
+  // Map simulated responses for offline testing
+  return claimsWithSources.map(item => getSimulatedVerification(item.claimText, item.searchResults));
 };
 
 function getSimulatedClaims(text) {
@@ -427,9 +493,6 @@ const generateSummary = async (text, customApiKey = null) => {
   if (apiKey && apiKey !== 'your_gemini_api_key' && apiKey.trim() !== '') {
     try {
       console.log('Generating document summary with Gemini...');
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
       const prompt = `
         Provide a concise 2-3 sentence executive summary of the following document. 
         Focus on its main purpose, key findings, and context.
@@ -438,7 +501,7 @@ const generateSummary = async (text, customApiKey = null) => {
         ${text.substring(0, 10000)}
       `;
 
-      const result = await model.generateContent(prompt);
+      const result = await callGeminiAPI(apiKey, prompt, false);
       const response = await result.response;
       return response.text().trim();
     } catch (error) {
@@ -462,5 +525,6 @@ module.exports = {
   extractClaims,
   extractClaimsAndTextFromPDF,
   verifyClaim,
+  verifyAllClaimsBatch,
   generateSummary,
 };

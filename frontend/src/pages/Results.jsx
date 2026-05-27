@@ -203,6 +203,18 @@ const Results = () => {
         </div>
 
         {}
+        {documentInfo.status === 'failed' && (
+          <div className="p-5 rounded-xl bg-brand-rose/10 border border-brand-rose/25 flex flex-col sm:flex-row items-center gap-4">
+            <ShieldAlert className="w-10 h-10 text-brand-rose flex-shrink-0" />
+            <div>
+              <h3 className="text-base font-bold text-white mb-1">Verification Pipeline Failed</h3>
+              <p className="text-xs text-dark-300">
+                The fact-checking pipeline encountered an error. This usually happens when your **Gemini API Key** is incorrect or has exceeded its rate limit/quota. Please check your backend logs, update your API key, and try again.
+              </p>
+            </div>
+          </div>
+        )}
+
         {documentInfo.status === 'processing' && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -233,73 +245,48 @@ const Results = () => {
         )}
 
         {}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {}
-          <div className="lg:col-span-2 glass-card p-6 flex flex-col justify-between">
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-dark-300 mb-3">AI Executive Summary</h3>
-              {documentInfo.summary ? (
-                <p className="text-sm text-dark-100 leading-relaxed font-sans">{documentInfo.summary}</p>
-              ) : (
-                <div className="space-y-2.5 animate-pulse">
-                  <div className="h-4 bg-dark-800 rounded w-full"></div>
-                  <div className="h-4 bg-dark-800 rounded w-5/6"></div>
-                  <div className="h-4 bg-dark-800 rounded w-4/5"></div>
-                </div>
-              )}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="glass-card p-4 flex flex-col justify-between border-brand-emerald/10 hover:border-brand-emerald/30">
+            <div className="flex items-center justify-between text-brand-emerald">
+              <span className="text-xs font-semibold uppercase tracking-wider">Verified</span>
+              <ShieldCheck className="w-5 h-5" />
             </div>
-            {totalClaimsCount > 0 && documentInfo.status === 'completed' && (
-              <div className="mt-4 pt-4 border-t border-dark-800/60 flex items-center gap-2 text-xs text-brand-emerald font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                Fact-checking completed. Overall accuracy: {Math.round((verifiedCount / totalClaimsCount) * 100)}%
-              </div>
-            )}
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-white">{verifiedCount}</span>
+              <p className="text-[10px] text-dark-300 mt-0.5">Claims verified accurate</p>
+            </div>
           </div>
 
-          {}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="glass-card p-4 flex flex-col justify-between border-brand-emerald/10 hover:border-brand-emerald/30">
-              <div className="flex items-center justify-between text-brand-emerald">
-                <span className="text-xs font-semibold uppercase tracking-wider">Verified</span>
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-white">{verifiedCount}</span>
-                <p className="text-[10px] text-dark-300 mt-0.5">Claims verified accurate</p>
-              </div>
+          <div className="glass-card p-4 flex flex-col justify-between border-brand-amber/10 hover:border-brand-amber/30">
+            <div className="flex items-center justify-between text-brand-amber">
+              <span className="text-xs font-semibold uppercase tracking-wider">Inaccurate</span>
+              <AlertTriangle className="w-5 h-5" />
             </div>
-
-            <div className="glass-card p-4 flex flex-col justify-between border-brand-amber/10 hover:border-brand-amber/30">
-              <div className="flex items-center justify-between text-brand-amber">
-                <span className="text-xs font-semibold uppercase tracking-wider">Inaccurate</span>
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-white">{inaccurateCount}</span>
-                <p className="text-[10px] text-dark-300 mt-0.5">Minor corrections found</p>
-              </div>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-white">{inaccurateCount}</span>
+              <p className="text-[10px] text-dark-300 mt-0.5">Minor corrections found</p>
             </div>
+          </div>
 
-            <div className="glass-card p-4 flex flex-col justify-between border-brand-rose/10 hover:border-brand-rose/30">
-              <div className="flex items-center justify-between text-brand-rose">
-                <span className="text-xs font-semibold uppercase tracking-wider">False</span>
-                <ShieldAlert className="w-5 h-5" />
-              </div>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-white">{falseCount}</span>
-                <p className="text-[10px] text-dark-300 mt-0.5">Claims contradicted</p>
-              </div>
+          <div className="glass-card p-4 flex flex-col justify-between border-brand-rose/10 hover:border-brand-rose/30">
+            <div className="flex items-center justify-between text-brand-rose">
+              <span className="text-xs font-semibold uppercase tracking-wider">False</span>
+              <ShieldAlert className="w-5 h-5" />
             </div>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-white">{falseCount}</span>
+              <p className="text-[10px] text-dark-300 mt-0.5">Claims contradicted</p>
+            </div>
+          </div>
 
-            <div className="glass-card p-4 flex flex-col justify-between border-dark-700/80 hover:border-brand-indigo/30">
-              <div className="flex items-center justify-between text-brand-indigo">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Claims</span>
-                <FileText className="w-5 h-5" />
-              </div>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-white">{totalClaimsCount}</span>
-                <p className="text-[10px] text-dark-300 mt-0.5">Identified in document</p>
-              </div>
+          <div className="glass-card p-4 flex flex-col justify-between border-dark-700/80 hover:border-brand-indigo/30">
+            <div className="flex items-center justify-between text-brand-indigo">
+              <span className="text-xs font-semibold uppercase tracking-wider">Total Claims</span>
+              <FileText className="w-5 h-5" />
+            </div>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-white">{totalClaimsCount}</span>
+              <p className="text-[10px] text-dark-300 mt-0.5">Identified in document</p>
             </div>
           </div>
         </div>

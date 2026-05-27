@@ -12,7 +12,7 @@ const runBackgroundVerification = async (documentId, pdfBuffer, fileName, keys) 
     
     // 1. Extract claims and text using Gemini's native multimodal capabilities
     const extraction = await aiService.extractClaimsAndTextFromPDF(pdfBuffer, keys.geminiKey, fileName);
-    const extractedClaims = extraction.claims || [];
+    let extractedClaims = extraction.claims || [];
     const text = extraction.extractedText || '';
 
     console.log(`Extracted text length: ${text.length}. Extracted ${extractedClaims.length} claims for document ${documentId}`);
@@ -43,44 +43,65 @@ const runBackgroundVerification = async (documentId, pdfBuffer, fileName, keys) 
       )
     );
 
-    // 3. Process verification for each claim
-    for (let i = 0; i < claimDocuments.length; i++) {
-      const claimDoc = claimDocuments[i];
-      try {
-        console.log(`Verifying claim [${i + 1}/${claimDocuments.length}]: "${claimDoc.claimText}"`);
-        
-        // Search the live web
-        const searchResults = await searchService.searchWeb(claimDoc.claimText, keys.tavilyKey);
-        
-        // AI Verification
-        const verification = await aiService.verifyClaim(claimDoc.claimText, searchResults, keys.geminiKey);
-        
-        // Update claim record in DB
-        claimDoc.status = verification.status || 'Verified';
-        claimDoc.correctedFact = verification.correctedFact || '';
-        claimDoc.explanation = verification.explanation || '';
-        claimDoc.confidenceScore = verification.confidenceScore || 0;
-        claimDoc.sources = searchResults; // Attach search results as sources
-        claimDoc.verifiedAt = new Date();
-        
-        await claimDoc.save();
-        console.log(`Verified claim [${i + 1}/${claimDocuments.length}] successfully: status is ${claimDoc.status}`);
-      } catch (claimError) {
-        console.error(`Error verifying claim "${claimDoc.claimText}":`, claimError);
-        // Fail gracefully for single claim to continue verification of others
+    // 3. Process verification for ALL claims concurrently and use BATCH AI verification
+    console.log(`Starting bulk web search for ${claimDocuments.length} claims...`);
+    
+    const claimsWithSources = await Promise.all(
+      claimDocuments.map(async (claimDoc) => {
+        try {
+          const searchResults = await searchService.searchWeb(claimDoc.claimText, keys.tavilyKey);
+          claimDoc.sources = searchResults; // Attach search results to DB doc immediately
+          return { claimText: claimDoc.claimText, searchResults };
+        } catch (searchError) {
+          console.error(`Web search failed for claim "${claimDoc.claimText}":`, searchError);
+          claimDoc.sources = [];
+          return { claimText: claimDoc.claimText, searchResults: [] };
+        }
+      })
+    );
+
+    console.log(`Performing single BATCH AI verification for all claims...`);
+    let verificationResults = [];
+    try {
+      if (claimsWithSources.length > 0) {
+        verificationResults = await aiService.verifyAllClaimsBatch(claimsWithSources, keys.geminiKey);
+      }
+    } catch (batchError) {
+      console.error(`Batch verification failed:`, batchError);
+      // If batch fails entirely, fallback to unverified error states
+      for (const claimDoc of claimDocuments) {
         claimDoc.status = 'Unverified';
-        claimDoc.explanation = `Verification failed due to system error: ${claimError.message}`;
+        claimDoc.explanation = `Verification failed due to system error: ${batchError.message}`;
         await claimDoc.save();
       }
     }
 
-    // 4. Generate summary
-    const summary = await aiService.generateSummary(text, keys.geminiKey);
+    // If batch verification succeeded, parse and save to DB
+    if (verificationResults && verificationResults.length > 0) {
+      for (let i = 0; i < claimDocuments.length; i++) {
+        const claimDoc = claimDocuments[i];
+        const verification = verificationResults[i];
+        
+        if (verification) {
+          claimDoc.status = verification.status || 'Verified';
+          claimDoc.correctedFact = verification.correctedFact || '';
+          claimDoc.explanation = verification.explanation || '';
+          claimDoc.confidenceScore = verification.confidenceScore || 0;
+          claimDoc.verifiedAt = new Date();
+        } else {
+          claimDoc.status = 'Unverified';
+          claimDoc.explanation = `Verification skipped: Model did not return data for this specific claim.`;
+        }
+        
+        await claimDoc.save();
+      }
+      console.log(`Successfully updated ${claimDocuments.length} claims in DB from BATCH verification.`);
+    }
 
-    // 5. Update document status to completed
+    // 4. Update document status to completed
     await Document.findByIdAndUpdate(documentId, {
       status: 'completed',
-      summary: summary
+      summary: 'Summary generation skipped to preserve API rate limits.'
     });
     console.log(`Completed verification pipeline for document: ${documentId}`);
 
