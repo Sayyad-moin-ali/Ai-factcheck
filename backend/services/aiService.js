@@ -16,8 +16,8 @@ function parseJSONResponse(text) {
 
 async function callGeminiAPI(apiKey, promptOrParts, isJson = true) {
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Try 2.5-flash first to bypass 3.5-flash limits, then 1.5-flash, then flash-latest, then 1.0-pro (legacy text-only)
-  const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-pro'];
+  // Try 2.5-flash-lite first to bypass limits, then 2.5-flash, then 1.5-flash, etc.
+  const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-pro'];
   
   let lastError;
   for (const modelName of modelsToTry) {
